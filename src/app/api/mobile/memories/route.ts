@@ -180,7 +180,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     let title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
-    const imageUrl = String(body.imageUrl || "").trim();
+    const imageUrl = String(body.imageUrl || body.url || "").trim();
     console.log("MEMORY BODY imageUrl:", imageUrl);
 
     if (!content) {
