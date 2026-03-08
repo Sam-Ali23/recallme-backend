@@ -25,6 +25,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
+    const imageUrl = String(body.imageUrl || "").trim();
 
     if (!title || !content) {
       return NextResponse.json(
@@ -43,7 +44,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       {
         title,
         content,
-      },
+        imageUrl,
+        },
       {
         new: true,
       }

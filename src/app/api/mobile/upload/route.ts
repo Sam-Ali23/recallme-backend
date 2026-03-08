@@ -38,10 +38,14 @@ export async function POST(request: Request) {
 
     await writeFile(filePath, buffer);
 
-    const host = request.headers.get("host");
-    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const baseUrl =
+  process.env.APP_BASE_URL ||
+  process.env.NEXTAUTH_URL ||
+  "http://localhost:3000";
 
-    const url = `${protocol}://${host}/uploads/${fileName}`;
+const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+
+const url = `${cleanBaseUrl}/uploads/${fileName}`;
 
     return NextResponse.json({
       success: true,
