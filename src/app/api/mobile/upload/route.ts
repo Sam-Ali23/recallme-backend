@@ -63,12 +63,14 @@ export async function POST(request: Request) {
       );
     }
 
-   console.log("UPLOAD CLOUDINARY URL:", data.secure_url);
+   console.log("UPLOAD ROUTE VERSION: CLOUDINARY LIVE");
+    console.log("CLOUDINARY URL:", data.secure_url);
 
-        return NextResponse.json({
-        success: true,
-        url: data.secure_url,
-        });
+    return NextResponse.json({
+    success: true,
+    url: data.secure_url,
+    provider: "cloudinary-live",
+    });
   } catch (error) {
     console.error("POST /api/mobile/upload error:", error);
 
