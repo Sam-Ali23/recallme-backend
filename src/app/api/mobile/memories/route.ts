@@ -180,7 +180,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     let title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
-    const imageUrl = body.imageUrl
+    const imageUrl = String(body.imageUrl || "").trim();
+    console.log("MEMORY BODY imageUrl:", imageUrl);
 
     if (!content) {
       return NextResponse.json(
@@ -221,6 +222,7 @@ export async function POST(request: Request) {
       console.error("Mobile summary/category generation failed:", error);
     }
 
+    console.log("SAVING MEMORY imageUrl:", imageUrl);
     const memory = await Memory.create({
       userId: mobileUser.userId,
       title,

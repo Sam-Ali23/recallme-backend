@@ -63,10 +63,12 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      url: data.secure_url,
-    });
+   console.log("UPLOAD CLOUDINARY URL:", data.secure_url);
+
+        return NextResponse.json({
+        success: true,
+        url: data.secure_url,
+        });
   } catch (error) {
     console.error("POST /api/mobile/upload error:", error);
 
