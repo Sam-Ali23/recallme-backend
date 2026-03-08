@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
 import { getMobileUserFromRequest } from "@/lib/mobile-auth";
 
 export async function POST(request: Request) {
@@ -25,31 +22,50 @@ export async function POST(request: Request) {
       );
     }
 
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+
+    if (!cloudName || !uploadPreset || !apiKey) {
+      return NextResponse.json(
+        { success: false, message: "Cloudinary is not configured" },
+        { status: 500 }
+      );
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString("base64");
+    const dataUri = `data:${file.type || "image/jpeg"};base64,${base64}`;
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
+    const cloudinaryForm = new FormData();
+    cloudinaryForm.append("file", dataUri);
+    cloudinaryForm.append("upload_preset", uploadPreset);
+    cloudinaryForm.append("api_key", apiKey);
+    cloudinaryForm.append("folder", "recallme");
 
-    const originalName = file.name || "memory.jpg";
-    const ext = path.extname(originalName) || ".jpg";
-    const fileName = `${randomUUID()}${ext}`;
-    const filePath = path.join(uploadsDir, fileName);
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: cloudinaryForm,
+      }
+    );
 
-    await writeFile(filePath, buffer);
+    const data = await response.json();
 
-  const baseUrl =
-  process.env.APP_BASE_URL ||
-  process.env.NEXTAUTH_URL ||
-  "http://localhost:3000";
+    if (!response.ok) {
+      console.error("Cloudinary upload error:", data);
 
-const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-
-const url = `${cleanBaseUrl}/uploads/${fileName}`;
+      return NextResponse.json(
+        { success: false, message: data?.error?.message || "Upload failed" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      url,
+      url: data.secure_url,
     });
   } catch (error) {
     console.error("POST /api/mobile/upload error:", error);

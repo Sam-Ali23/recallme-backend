@@ -180,7 +180,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     let title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
-    const imageUrl = String(body.imageUrl || "").trim();
+    const imageUrl = body.imageUrl
 
     if (!content) {
       return NextResponse.json(
@@ -229,7 +229,7 @@ export async function POST(request: Request) {
       summary,
       category,
       imageUrl
-    });
+    })
 
     return NextResponse.json({
       success: true,
