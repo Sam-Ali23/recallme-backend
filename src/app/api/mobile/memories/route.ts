@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Memory } from "@/lib/models/Memory";
@@ -83,8 +85,14 @@ food, travel, health, work, people, idea, study, shopping, event, personal, fina
   try {
     const parsed = JSON.parse(text);
     return {
-      summary: typeof parsed.summary === "string" ? parsed.summary.trim().slice(0, 160) : "",
-      category: typeof parsed.category === "string" ? parsed.category.trim().toLowerCase() : "personal",
+      summary:
+        typeof parsed.summary === "string"
+          ? parsed.summary.trim().slice(0, 160)
+          : "",
+      category:
+        typeof parsed.category === "string"
+          ? parsed.category.trim().toLowerCase()
+          : "personal",
     };
   } catch {
     return {
@@ -181,7 +189,6 @@ export async function POST(request: Request) {
     let title = String(body.title || "").trim();
     const content = String(body.content || "").trim();
     const imageUrl = String(body.imageUrl || body.url || "").trim();
-    console.log("MEMORY BODY imageUrl:", imageUrl);
 
     if (!content) {
       return NextResponse.json(
@@ -222,7 +229,6 @@ export async function POST(request: Request) {
       console.error("Mobile summary/category generation failed:", error);
     }
 
-    console.log("SAVING MEMORY imageUrl:", imageUrl);
     const memory = await Memory.create({
       userId: mobileUser.userId,
       title,
@@ -230,8 +236,8 @@ export async function POST(request: Request) {
       tags,
       summary,
       category,
-      imageUrl
-    })
+      imageUrl,
+    });
 
     return NextResponse.json({
       success: true,

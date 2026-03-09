@@ -1,6 +1,11 @@
 export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary, UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
+import {
+  v2 as cloudinary,
+  UploadApiErrorResponse,
+  UploadApiResponse,
+} from "cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,15 +19,18 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "No file uploaded" },
+        { status: 400 }
+      );
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
+    const uploadResult = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
           { folder: "recallme" },
           (
             error: UploadApiErrorResponse | undefined,
@@ -40,15 +48,24 @@ export async function POST(req: NextRequest) {
 
             resolve(result);
           }
-        )
-        .end(buffer);
-    });
+        );
+
+        stream.end(buffer);
+      }
+    );
+
+    console.log("CLOUDINARY URL:", uploadResult.secure_url);
 
     return NextResponse.json({
+      success: true,
       url: uploadResult.secure_url,
     });
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+  } catch (error) {
+    console.error("POST /api/mobile/upload error:", error);
+
+    return NextResponse.json(
+      { success: false, message: "Failed to upload image" },
+      { status: 500 }
+    );
   }
 }
