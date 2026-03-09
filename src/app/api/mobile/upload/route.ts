@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
     const uploadResult = await new Promise<UploadApiResponse>(
       (resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "recallme" },
+          {
+            folder: "recallme",
+            upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET
+            },
           (
             error: UploadApiErrorResponse | undefined,
             result: UploadApiResponse | undefined
