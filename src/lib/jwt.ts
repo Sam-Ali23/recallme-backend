@@ -1,13 +1,13 @@
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
-const SECRET = process.env.JWT_SECRET!
+const SECRET = process.env.JWT_SECRET!;
 
 export function signToken(userId: string) {
   return jwt.sign({ userId }, SECRET, {
-    expiresIn: "30d"
-  })
+    expiresIn: "30d",
+  });
 }
 
 export function verifyToken(token: string) {
-  return jwt.verify(token, SECRET)
+  return jwt.verify(token, SECRET);
 }
